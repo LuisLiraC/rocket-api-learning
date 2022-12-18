@@ -14,7 +14,7 @@ struct User {
 #[serde(crate = "rocket::serde")]
 struct Message {
     message: String,
-    id: i32,
+    id: Option<i32>,
     user: User,
     hobbies: Vec<String>,
     optional_property: Option<String>
@@ -47,20 +47,21 @@ fn index() -> Json<Vec<Message>> {
 }
 
 #[post("/", data = "<data>")]
-fn post(data: Json<Message>) -> status::Created<Json<Vec<Message>>> {
-    println!("Message: {}", data.message);
+fn post(data: Json<Message>) -> status::Created<Json<Message>> {
+
     let new_message = Message {
         message: data.message.clone(),
-        id: 2,
+        id: Some(unsafe { MESSAGES.messages.len() as i32 }),
         user: User {
-            name: "John Doe".to_string(),
-            age: 25
+            name: data.user.name.clone(),
+            age: data.user.age.clone()
         },
-        hobbies: vec!["Programming".to_string(), "Reading".to_string()],
-        optional_property: None
+        hobbies: data.hobbies.clone(),
+        optional_property: data.optional_property.clone()
     };
-    unsafe { MESSAGES.save_message(new_message).unwrap(); }
-    status::Created::new("/".to_string()).body(Json(unsafe { MESSAGES.get_messages() }))
+
+    unsafe { MESSAGES.save_message(new_message.clone()).unwrap(); }
+    status::Created::new("/".to_string()).body(Json(new_message))
 }
 
 #[launch]
