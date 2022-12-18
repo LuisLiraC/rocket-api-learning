@@ -31,15 +31,15 @@ impl MessagesList {
         self.messages.clone()
     }
 
-    fn save_message(&mut self, message: Message) -> Result<(), String> {
+    fn save_message(&mut self, message: &Message) -> Result<(), String> {
         let mut new_messages = self.messages.clone();
-        new_messages.push(message);
+        new_messages.push(message.clone());
         self.messages = new_messages.clone();
         Ok(())
     }
 }
 
-static mut MESSAGES: MessagesList = MessagesList {messages: Vec::new() };
+static mut MESSAGES: MessagesList = MessagesList { messages: Vec::new() };
 
 #[get("/")]
 fn index() -> Json<Vec<Message>> {
@@ -60,13 +60,12 @@ fn post(data: Json<Message>) -> status::Created<Json<Message>> {
         optional_property: data.optional_property.clone()
     };
 
-    unsafe { MESSAGES.save_message(new_message.clone()).unwrap(); }
+    unsafe { MESSAGES.save_message(&new_message).unwrap(); }
     status::Created::new("/".to_string()).body(Json(new_message))
 }
 
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![index])
-        .mount("/", routes![post])
+        .mount("/", routes![index, post])
 }
