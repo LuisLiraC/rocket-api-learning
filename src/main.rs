@@ -3,14 +3,14 @@ use rocket::serde::{Serialize, Deserialize, json::Json};
 use rocket::response::status;
 use std::vec::Vec;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(crate = "rocket::serde")]
 struct User {
     name: String,
     age: u8,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(crate = "rocket::serde")]
 struct Message {
     message: String,
@@ -20,48 +20,47 @@ struct Message {
     optional_property: Option<String>
 }
 
-#[get("/")]
-// fn index() -> status::Created<Json<Vec<Message>>> {
-fn index() -> Json<Vec<Message>> {
-    let mut messages: Vec<Message> = Vec::new();
-    let message1 = Message {
-        id: 1,
-        message: "Hello, world!".to_string(),
-        user: User {
-            name: "John".to_string(),
-            age: 20
-        },
-        hobbies: vec![
-            "Programming".to_string(),
-            "Reading".to_string()
-        ],
-        optional_property: Some("Some".to_string())
-    };
-    let message2 = Message {
-        id: 2,
-        message: "Hello, world! 2".to_string(),
-        user: User {
-            name: "John".to_string(),
-            age: 20
-        },
-        hobbies: vec![
-            "Programming".to_string(),
-            "Reading".to_string()
-        ],
-        optional_property: None
-    };
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(crate = "rocket::serde")]
+struct MessagesList {
+    messages: Vec<Message>
+}
 
-    messages.push(message1);
-    messages.push(message2);
-    Json(messages)
-    // status::Created::new("/".to_string()).body(Json(message))
-    // status::Accepted(Some(Json(message)))
+impl MessagesList {
+    fn get_messages(&mut self) -> Vec<Message> {
+        self.messages.clone()
+    }
+
+    fn save_message(&mut self, message: Message) -> Result<(), String> {
+        let mut new_messages = self.messages.clone();
+        new_messages.push(message);
+        self.messages = new_messages.clone();
+        Ok(())
+    }
+}
+
+static mut MESSAGES: MessagesList = MessagesList {messages: Vec::new() };
+
+#[get("/")]
+fn index() -> Json<Vec<Message>> {
+    Json(unsafe { MESSAGES.get_messages() })
 }
 
 #[post("/", data = "<data>")]
-fn post(data: Json<Message>) -> status::Created<Json<Message>> {
+fn post(data: Json<Message>) -> status::Created<Json<Vec<Message>>> {
     println!("Message: {}", data.message);
-    status::Created::new("/".to_string()).body(data)
+    let new_message = Message {
+        message: data.message.clone(),
+        id: 2,
+        user: User {
+            name: "John Doe".to_string(),
+            age: 25
+        },
+        hobbies: vec!["Programming".to_string(), "Reading".to_string()],
+        optional_property: None
+    };
+    unsafe { MESSAGES.save_message(new_message).unwrap(); }
+    status::Created::new("/".to_string()).body(Json(unsafe { MESSAGES.get_messages() }))
 }
 
 #[launch]
