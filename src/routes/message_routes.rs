@@ -8,12 +8,12 @@ use crate::models::user::User;
 static mut MESSAGES: MessagesList = MessagesList { messages: Vec::new() };
 
 #[rocket::get("/")]
-pub fn index() -> Json<Vec<Message>> {
+fn index() -> Json<Vec<Message>> {
     Json(unsafe { MESSAGES.get_messages() })
 }
 
 #[rocket::post("/", data = "<data>")]
-pub fn post(data: Json<Message>) -> status::Created<Json<Message>> {
+fn post(data: Json<Message>) -> status::Created<Json<Message>> {
 
     let new_message = Message {
         message: data.message.clone(),
@@ -28,4 +28,8 @@ pub fn post(data: Json<Message>) -> status::Created<Json<Message>> {
 
     unsafe { MESSAGES.save_message(&new_message).unwrap(); }
     status::Created::new("/".to_string()).body(Json(new_message))
+}
+
+pub fn get_routes() -> Vec<rocket::Route> {
+    rocket::routes![index, post]
 }
