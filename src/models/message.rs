@@ -29,3 +29,9 @@ impl MessagesList {
         Ok(())
     }
 }
+
+#[derive(Serialize)]
+#[serde(crate = "rocket::serde")]
+pub struct MessageError {
+    pub error: String
+}
