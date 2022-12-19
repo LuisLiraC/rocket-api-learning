@@ -3,7 +3,10 @@ use rocket_api::routes::{
     messages::get_routes as get_message_routes,
 };
 
-#[rocket::launch]
+#[macro_use]
+extern crate rocket;
+
+#[launch]
 fn rocket() -> _ {
     rocket::build()
         .mount("/api/v1/messages/", get_message_routes())
