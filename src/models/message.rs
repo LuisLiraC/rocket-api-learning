@@ -22,11 +22,10 @@ impl MessagesList {
         self.messages.clone()
     }
 
-    pub fn save_message(&mut self, message: &Message) -> Result<(), String> {
+    pub fn save_message(&mut self, message: &Message) -> () {
         let mut new_messages = self.messages.clone();
         new_messages.push(message.clone());
         self.messages = new_messages.clone();
-        Ok(())
     }
 }
 
