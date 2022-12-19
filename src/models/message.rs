@@ -1,11 +1,5 @@
 use rocket::serde::{Serialize, Deserialize};
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(crate = "rocket::serde")]
-pub struct User {
-    pub name: String,
-    pub age: u8,
-}
+use crate::models::user::User;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(crate = "rocket::serde")]

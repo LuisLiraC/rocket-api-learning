@@ -3,7 +3,8 @@ use rocket::serde::json::Json;
 use rocket::response::status;
 use std::vec::Vec;
 
-pub use rocket_api::models::{User, Message, MessagesList};
+use rocket_api::models::user::User;
+use rocket_api::models::message::{Message, MessagesList};
 
 static mut MESSAGES: MessagesList = MessagesList { messages: Vec::new() };
 
