@@ -1,43 +1,9 @@
 #[macro_use] extern crate rocket;
-use rocket::serde::{Serialize, Deserialize, json::Json};
+use rocket::serde::json::Json;
 use rocket::response::status;
 use std::vec::Vec;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(crate = "rocket::serde")]
-struct User {
-    name: String,
-    age: u8,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(crate = "rocket::serde")]
-struct Message {
-    message: String,
-    id: Option<i32>,
-    user: User,
-    hobbies: Vec<String>,
-    optional_property: Option<String>
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-#[serde(crate = "rocket::serde")]
-struct MessagesList {
-    messages: Vec<Message>
-}
-
-impl MessagesList {
-    fn get_messages(&mut self) -> Vec<Message> {
-        self.messages.clone()
-    }
-
-    fn save_message(&mut self, message: &Message) -> Result<(), String> {
-        let mut new_messages = self.messages.clone();
-        new_messages.push(message.clone());
-        self.messages = new_messages.clone();
-        Ok(())
-    }
-}
+pub use rocket_api::models::{User, Message, MessagesList};
 
 static mut MESSAGES: MessagesList = MessagesList { messages: Vec::new() };
 

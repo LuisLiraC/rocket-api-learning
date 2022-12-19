@@ -933,7 +933,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rocket-api"
+name = "rocket_api"
 version = "0.1.0"
 dependencies = [
  "rocket",
